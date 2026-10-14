@@ -1,0 +1,9 @@
+# Managed by provisioning. Sorted before cloud-init's 50-cloud-init.conf so
+# these settings win (sshd uses the first value it reads).
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin no
+AllowUsers ${admin_user}
+MaxAuthTries 3
+X11Forwarding no
+AllowAgentForwarding no

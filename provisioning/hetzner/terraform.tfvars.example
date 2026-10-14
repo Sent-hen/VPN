@@ -1,0 +1,17 @@
+# Copy to terraform.tfvars (git-ignored) and fill in.
+# Set the API token in the environment instead of here:
+#   $env:TF_VAR_hcloud_token = "..."
+
+location    = "nbg1"
+server_type = "cx23"
+
+# Your current public IP, so you can fetch the server's public key over SSH.
+admin_cidrs = ["203.0.113.7/32"]
+
+# Public keys only. Generate them on each device with: vpnctl keygen -device <name>
+peers = {
+  laptop = {
+    public_key = "REPLACE_WITH_OUTPUT_OF_vpnctl_keygen_AAAAAAA="
+    host       = 2
+  }
+}

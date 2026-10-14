@@ -1,0 +1,13 @@
+# Managed by provisioning. Add or remove peers with `vpn-peer`, not by hand.
+# PrivateKey is filled in on first boot by vpn-bootstrap.
+[Interface]
+Address = ${server_ipv4}/24, ${server_ipv6}/64
+ListenPort = ${wg_port}
+PrivateKey = GENERATED_ON_FIRST_BOOT
+%{ for name, p in peers ~}
+
+# peer: ${name}
+[Peer]
+PublicKey = ${p.public_key}
+AllowedIPs = ${p.ipv4}/32, ${p.ipv6}/128
+%{ endfor ~}
