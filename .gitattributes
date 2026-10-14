@@ -1,0 +1,4 @@
+# Everything that runs on the Linux server must keep LF line endings, even
+# when committed from Windows. A CRLF in a shell script breaks it.
+* text=auto eol=lf
+*.ps1 text eol=crlf

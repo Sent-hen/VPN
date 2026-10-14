@@ -1,0 +1,18 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+terraform.tfvars
+*.auto.tfvars
+# Provider lock files are committed on purpose: .terraform.lock.hcl
+
+# Never commit keys or client configs
+*.key
+*.conf
+
+# Go
+/bin/
+/vpnctl
+/vpnctl.exe

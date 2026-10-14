@@ -1,0 +1,56 @@
+#!/usr/sbin/nft -f
+# Managed by provisioning. Default-deny for inbound and forwarded traffic.
+# The Hetzner cloud firewall in front of this server applies the same rules
+# for WireGuard and SSH; this is the second layer.
+flush ruleset
+
+table inet filter {
+  chain input {
+    type filter hook input priority filter; policy drop;
+
+    ct state established,related accept
+    ct state invalid drop
+    iif "lo" accept
+    meta l4proto { icmp, ipv6-icmp } accept
+
+    udp dport ${wg_port} accept
+
+    # DNS and SSH are only offered inside the tunnel.
+    iifname "wg0" udp dport 53 accept
+    iifname "wg0" tcp dport 53 accept
+    iifname "wg0" tcp dport 22 accept
+%{ if length(admin_ipv4_cidrs) > 0 ~}
+    ip saddr { ${join(", ", admin_ipv4_cidrs)} } tcp dport 22 accept
+%{ endif ~}
+%{ if length(admin_ipv6_cidrs) > 0 ~}
+    ip6 saddr { ${join(", ", admin_ipv6_cidrs)} } tcp dport 22 accept
+%{ endif ~}
+  }
+
+  chain forward {
+    type filter hook forward priority filter; policy drop;
+
+    # Clamp TCP MSS to the route MTU so large packets survive the tunnel
+    # overhead on networks that block ICMP "fragmentation needed".
+    iifname "wg0" tcp flags syn tcp option maxseg size set rt mtu
+    oifname "wg0" tcp flags syn tcp option maxseg size set rt mtu
+
+    ct state established,related accept
+    ct state invalid drop
+
+    # Clients may reach the internet, but not each other.
+    iifname "wg0" oifname != "wg0" accept
+  }
+
+  chain output {
+    type filter hook output priority filter; policy accept;
+  }
+}
+
+table inet nat {
+  chain postrouting {
+    type nat hook postrouting priority srcnat; policy accept;
+    ip saddr ${tunnel_ipv4_cidr} oifname != "wg0" masquerade
+    ip6 saddr ${tunnel_ipv6_cidr} oifname != "wg0" masquerade
+  }
+}

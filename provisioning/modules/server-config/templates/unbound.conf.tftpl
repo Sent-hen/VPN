@@ -1,0 +1,31 @@
+# Managed by provisioning. A validating, non-logging resolver that only
+# answers clients inside the tunnel. DNSSEC trust anchor setup comes from
+# Ubuntu's root-auto-trust-anchor-file.conf in the same directory.
+server:
+    interface: ${server_ipv4}
+    interface: ${server_ipv6}
+    # wg0 may not exist yet when unbound starts at boot.
+    ip-freebind: yes
+
+    access-control: ${tunnel_ipv4_cidr} allow
+    access-control: ${tunnel_ipv6_cidr} allow
+
+    hide-identity: yes
+    hide-version: yes
+    qname-minimisation: yes
+    harden-glue: yes
+    harden-dnssec-stripped: yes
+    prefetch: yes
+
+    # No query logs.
+    verbosity: 0
+    log-queries: no
+    log-replies: no
+
+    # Refuse public answers that point into private ranges (DNS rebinding).
+    private-address: 10.0.0.0/8
+    private-address: 172.16.0.0/12
+    private-address: 192.168.0.0/16
+    private-address: 169.254.0.0/16
+    private-address: fd00::/8
+    private-address: fe80::/10
