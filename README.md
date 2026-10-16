@@ -1,22 +1,23 @@
 # Personal VPN
 
-> One command deploys a private WireGuard server in the cloud, and a desktop
-> app connects me to it. My traffic on café Wi-Fi is encrypted, and I control
-> every piece instead of trusting a VPN company.
+My own WireGuard VPN. One command sets up a server in the cloud, and (once
+it's built) a desktop app will connect me to it. I wanted my traffic on café
+Wi-Fi encrypted without having to trust a VPN company with it.
 
 **Status:** server provisioning works (Phase 2). The Windows daemon and
-desktop UI come next. See the [roadmap](docs/roadmap.md).
+desktop UI are next. See the [roadmap](docs/roadmap.md).
 
-## What it is, and what it isn't
+## What a VPN does and doesn't do
 
-A VPN makes your device send everything through an encrypted tunnel to a
-server, which then talks to the internet for you. The coffee-shop network and
-your ISP see only encrypted packets going to one address.
+Your device sends all its traffic through an encrypted tunnel to a server, and
+the server talks to the internet for you. The café network and your ISP only
+see encrypted packets going to one address.
 
-It moves trust: from the local network and ISP to the server and the cloud host
-running it. Here, that server is mine. **This is privacy on untrusted networks,
-not anonymity.** The [threat model](docs/threat-model.md) lists exactly what it
-does and does not protect against.
+That doesn't remove the need for trust. It moves it from the local network and
+ISP to the server and whoever hosts it. In this case the server is mine.
+**This gives you privacy on networks you don't trust. It doesn't make you
+anonymous.** The [threat model](docs/threat-model.md) spells out what it
+protects against and what it doesn't.
 
 ## Architecture
 
@@ -37,11 +38,11 @@ does and does not protect against.
  [ vpnctl ]  device keys and client configs              working
 ```
 
-Two design choices to point out:
+Two decisions worth knowing about:
 
-- **No home-made crypto in the product.** It uses WireGuard. A from-scratch
-  tunnel built on a vetted library is a separate, clearly labeled learning
-  module (Tier B).
+- **No home-made crypto.** The real tunnel is WireGuard. Later I plan to
+  write a toy tunnel from scratch on a vetted crypto library, just to learn how
+  it works. That will stay separate and won't carry real traffic (Tier B).
 - **Private keys never travel.** Each device generates its own key and only
   shares the public half. The server generates its key at first boot. Terraform
   state contains no secrets except your API token, which stays in an environment
